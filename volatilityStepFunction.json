@@ -1,0 +1,45 @@
+{
+  "Comment": "Basic step function state machine for permforming linear automated volatilty memory sample analysis",
+  "StartAt": "Image Identification",
+  "States": {
+    "Image Identification": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:REGION:ACCOUNT_ID:function:imageInfo_function",
+      "Next": ""
+    },
+    "Is Image Successfully Identified": {
+        "Type" : "Choice",
+        "Choices": [
+          {
+            "Variable": "$.Status",
+            "NumericEquals": 1,
+            "Next": "Fail"
+          },
+          {
+            "Variable": "$.Status",
+            "NumericEquals": 0,
+            "Next": "Process List"
+          }
+      ]
+    },
+    "Process List": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:REGION:ACCOUNT_ID:function:pslist_function",
+      "Next": "Network List"
+    },
+    "Network List": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:REGION:ACCOUNT_ID:function:netscan_function",
+      "Next": "Module List"
+    },
+    "Module List": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:REGION:ACCOUNT_ID:function:dllList_function",
+      "Next": "Is Case Resolved"
+    },
+    "Fail": {
+      "Type": "Fail",
+      "Cause": "Sample image unable to be identified."
+    }
+  }
+}
